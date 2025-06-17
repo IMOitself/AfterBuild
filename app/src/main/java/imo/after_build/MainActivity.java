@@ -10,6 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,12 +33,24 @@ public class MainActivity extends Activity
             return;
         }
 
-        TextView textview = new TextView(this);
+        final EditText projectPathEdit = findViewById(R.id.project_path_edit);
+        Button projectPathBtn = findViewById(R.id.project_path_btn);
+        TextView outputText = findViewById(R.id.output_txt);
 
         receiveApk(this);
 
-        textview.setText(output);
-        setContentView(textview);
+        projectPathBtn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    File projectFolder = new File(projectPathEdit.getText().toString());
+                    if(! projectFolder.exists()) {
+                        projectPathEdit.setText("");
+                        return;
+                    }
+                }
+            });
+
+        outputText.setText(output);
     }
 
     public boolean receiveApk(Context mContext) {
