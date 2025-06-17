@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.widget.TextView;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +23,12 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        if(! hasStoragePermission()) {
+            requestStoragePermission();
+            finishAffinity();
+            return;
+        }
 
         TextView textview = new TextView(this);
 
@@ -48,18 +56,18 @@ public class MainActivity extends Activity
         File tempFile = null;
         try {
             tempFile = copyToTempCacheFile(context, apkUri);
-            if (tempFile == null) return null;
+            if(tempFile == null) return null;
 
             PackageManager pm = context.getPackageManager();
             PackageInfo packageInfo = pm.getPackageArchiveInfo(tempFile.getAbsolutePath(), 0);
 
-            if (packageInfo == null) return null;
-            
+            if(packageInfo == null) return null;
+
             return packageInfo.packageName;
 
-        } catch (Exception e) {}
+        } catch(Exception e) {}
 
-        if (tempFile != null && tempFile.exists()) 
+        if(tempFile != null && tempFile.exists()) 
             tempFile.delete();
         return null;
     }
@@ -67,22 +75,41 @@ public class MainActivity extends Activity
     private static File copyToTempCacheFile(Context context, Uri uri) {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            if (inputStream == null) return null;
+            if(inputStream == null) return null;
 
             File tempFile = new File(context.getCacheDir(), "temp_apk.apk");
 
             try (OutputStream outputStream = new FileOutputStream(tempFile)) {
                 byte[] buffer = new byte[4096];
                 int length;
-                while ((length = inputStream.read(buffer)) > 0) {
+                while((length = inputStream.read(buffer)) > 0) {
                     outputStream.write(buffer, 0, length);
                 }
             }
             inputStream.close();
             return tempFile;
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             return null;
+        }
+    }
+
+    boolean hasStoragePermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return Environment.isExternalStorageManager();
+        } else {
+            return checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+
+    void requestStoragePermission() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            startActivity(intent);
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+            requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
         }
     }
 }

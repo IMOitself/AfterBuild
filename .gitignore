@@ -1,3 +1,5 @@
 /build
 /app/build/
 /app/build/gen/
+/app/build/bin/injected
+/app/build/bin
