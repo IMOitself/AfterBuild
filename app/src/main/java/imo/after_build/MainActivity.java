@@ -21,7 +21,7 @@ import java.io.OutputStream;
 
 public class MainActivity extends Activity 
 {
-    String output = "nope";
+    String projectPackageName = "nope";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,23 +34,43 @@ public class MainActivity extends Activity
         }
 
         final EditText projectPathEdit = findViewById(R.id.project_path_edit);
-        Button projectPathBtn = findViewById(R.id.project_path_btn);
-        TextView outputText = findViewById(R.id.output_txt);
+        final Button projectPathBtn = findViewById(R.id.project_path_btn);
+        final TextView outputText = findViewById(R.id.output_txt);
 
         receiveApk(this);
 
         projectPathBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    File projectFolder = new File(projectPathEdit.getText().toString());
-                    if(! projectFolder.exists()) {
-                        projectPathEdit.setText("");
-                        return;
+                    File detectedProjectFolder = findProjectByPackageName(projectPackageName);
+
+                    String projectPathText = projectPathEdit.getText().toString();
+
+                    File projectFolder = null;
+                    if(projectPathText.isEmpty() && detectedProjectFolder != null) {
+                        projectFolder = detectedProjectFolder;
+
+                        projectPathEdit.setText(projectFolder.getAbsolutePath());
+                        projectPathBtn.setText("LOAD");
+                    } else {
+                        projectFolder = new File(projectPathText);
+                        if(! projectFolder.exists()) {
+                            //TODO: also detect if folder is an aide project
+                            projectPathEdit.setText("");
+                            projectPathBtn.setText("DETECT");
+                            return;
+                        }
                     }
+
+                    String output = "";
+                    for(File file : projectFolder.listFiles()) {
+                        output += "\n" + file.getName();
+                    }
+                    outputText.setText(output);
                 }
             });
 
-        outputText.setText(output);
+        outputText.setText(projectPackageName);
     }
 
     public boolean receiveApk(Context mContext) {
@@ -62,7 +82,7 @@ public class MainActivity extends Activity
         if(! "application/vnd.android.package-archive".equals(type)) return false;
         Uri apkUri = intent.getData();
         if(apkUri == null) return false;
-        output = getApkPackageName(mContext, apkUri);
+        projectPackageName = getApkPackageName(mContext, apkUri);
         return true;
     }
 
@@ -107,6 +127,25 @@ public class MainActivity extends Activity
         } catch(Exception e) {
             return null;
         }
+    }
+
+    private static File findProjectByPackageName(String projectPackageName) {
+        String javaPath = projectPackageName.replace(".", "/");
+
+        // used by AIDE to store projects
+        final File AppProjectsFolder = new File("/storage/emulated/0/", "AppProjects");
+        if(! AppProjectsFolder.exists()) return null;
+
+        for(File folder : AppProjectsFolder.listFiles()) {
+            if(! folder.isDirectory()) continue;
+            File javafolder = new File(folder, "app/src/main/java/");
+
+            if(! javafolder.exists()) continue;
+            File subfolder = new File(javafolder, javaPath);
+
+            if(subfolder.exists()) return folder;
+        }
+        return null;
     }
 
     boolean hasStoragePermission() {
