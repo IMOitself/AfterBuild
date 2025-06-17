@@ -15,8 +15,7 @@ comming soon...
 ## How it works
 - AIDE opens the apk file of a project after building
 - the 'Open With' dialog will be open and AfterBuild will show on choices
-- AfterBuild will then locate the project folder and performs command
-  allowing you to manage the project quickly
+- AfterBuild will then locate the project folder. Allowing you to manage the project quickly
 - example usecase: including apk file on folder. running git commands.
 
 <br><br><br>
