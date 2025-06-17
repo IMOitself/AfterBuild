@@ -1,35 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+	<LinearLayout
+		android:orientation="horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:ems="10"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.0"
-            android:hint="aide project path..."
-            android:id="@+id/project_path_edit"/>
+		<EditText
+			android:layout_width="wrap_content"
+			android:ems="10"
+			android:layout_height="wrap_content"
+			android:layout_weight="1.0"
+			android:hint="aide project path..."
+			android:id="@+id/project_path_edit"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_height="match_parent"
-            android:text="Detect"
-            android:id="@+id/project_path_btn"/>
+		<Button
+			android:layout_width="wrap_content"
+			style="?android:attr/buttonBarButtonStyle"
+			android:layout_height="match_parent"
+			android:text="Detect"
+			android:id="@+id/project_path_btn"/>
 
-    </LinearLayout>
+	</LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Output:"
-        android:id="@+id/output_txt"/>
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Output:"
+		android:id="@+id/output_txt"/>
 
 </LinearLayout>
+
