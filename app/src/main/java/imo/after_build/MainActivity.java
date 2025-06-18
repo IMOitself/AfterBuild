@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import imo.after_build.MainActivity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -23,10 +22,12 @@ import java.io.OutputStream;
 
 public class MainActivity extends Activity 
 {
+    //TODO: MAJOR REFACTORING BECAUSE IT IS GETTING LESS UNDERSTANDABLE
     String projectPackageName = "nope";
     Button projectPathBtn;
     Button apkContinueInstallBtn;
-    
+    Button addApkToProjectBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +43,7 @@ public class MainActivity extends Activity
         projectPathBtn = findViewById(R.id.project_path_btn);
         final TextView outputText = findViewById(R.id.output_txt);
         apkContinueInstallBtn = findViewById(R.id.apk_install_btn);
+        addApkToProjectBtn = findViewById(R.id.add_apk_btn);
 
         boolean isRecieveApk = receiveApk(this);
 
@@ -69,13 +71,14 @@ public class MainActivity extends Activity
 
                     String output = "";
                     if(projectFolder != null)
-                    for(File file : projectFolder.listFiles()) {
-                        output += "\n" + file.getName();
-                    }
+                        for(File file : projectFolder.listFiles()) {
+                            output += "\n" + file.getName();
+                        }
                     outputText.setText(output);
+                    MainActivity.this.setTitle(projectPackageName);
                 }
             });
-        
+
         if(isRecieveApk) projectPathBtn.performClick();
     }
 
@@ -89,11 +92,23 @@ public class MainActivity extends Activity
         final Uri apkUri = intent.getData();
         if(apkUri == null) return false;
         projectPackageName = getApkPackageName(mContext, apkUri);
-        
+
         apkContinueInstallBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
                     installApk(mContext, apkUri);
+                }
+            });
+
+        addApkToProjectBtn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    File detectedProjectFolder = findProjectByPackageName(projectPackageName);
+                    if(copyApkToFolder(apkUri, detectedProjectFolder, projectPackageName.replace(".", "-") + ".apk")) {
+                        //TODO: refresh project files list
+                        addApkToProjectBtn.setText("Successfully Added Apk.");
+                        addApkToProjectBtn.setEnabled(false);
+                    }
                 }
             });
         return true;
@@ -160,20 +175,41 @@ public class MainActivity extends Activity
         }
         return null;
     }
-    
-    static void installApk(Context mContext, Uri apkUri){
-        if (apkUri != null) {
+
+    static void installApk(Context mContext, Uri apkUri) {
+        if(apkUri != null) {
             Intent installIntent = new Intent(Intent.ACTION_VIEW);
             installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
             installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             try {
                 mContext.startActivity(installIntent);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 Toast.makeText(mContext, "Failed to open package installer.", Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(mContext, "APK file URI is not available.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean copyApkToFolder(Uri apkUri, File destinationFolder, String filename) {
+        try {
+            if(!destinationFolder.exists()) destinationFolder.mkdirs();
+            File destinationFile = new File(destinationFolder, filename);
+
+            InputStream in = getContentResolver().openInputStream(apkUri);
+            OutputStream out = new FileOutputStream(destinationFile);
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+
+        } catch(Exception e) {
+            Toast.makeText(this, "Failed to copy APK", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     boolean hasStoragePermission() {

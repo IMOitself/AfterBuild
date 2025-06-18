@@ -32,7 +32,14 @@
 		android:layout_height="wrap_content"
 		android:text="Output:"
 		android:id="@+id/output_txt"
-		android:layout_weight="1.0"/>
+		android:layout_weight="1.0"
+		android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+	<Button
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Add Apk To Project Folder"
+		android:id="@+id/add_apk_btn"/>
 
 	<LinearLayout
 		android:orientation="horizontal"
