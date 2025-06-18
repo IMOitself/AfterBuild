@@ -24,6 +24,7 @@ import java.io.OutputStream;
 public class MainActivity extends Activity 
 {
     String projectPackageName = "nope";
+    Button projectPathBtn;
     Button apkContinueInstallBtn;
     
     @Override
@@ -38,11 +39,11 @@ public class MainActivity extends Activity
         }
 
         final EditText projectPathEdit = findViewById(R.id.project_path_edit);
-        final Button projectPathBtn = findViewById(R.id.project_path_btn);
+        projectPathBtn = findViewById(R.id.project_path_btn);
         final TextView outputText = findViewById(R.id.output_txt);
         apkContinueInstallBtn = findViewById(R.id.apk_install_btn);
 
-        receiveApk(this);
+        boolean isRecieveApk = receiveApk(this);
 
         projectPathBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -63,19 +64,19 @@ public class MainActivity extends Activity
                             //TODO: also detect if folder is an aide project
                             projectPathEdit.setText("");
                             projectPathBtn.setText("DETECT");
-                            return;
                         }
                     }
 
                     String output = "";
+                    if(projectFolder != null)
                     for(File file : projectFolder.listFiles()) {
                         output += "\n" + file.getName();
                     }
                     outputText.setText(output);
                 }
             });
-            
-        outputText.setText(projectPackageName);
+        
+        if(isRecieveApk) projectPathBtn.performClick();
     }
 
     public boolean receiveApk(final Context mContext) {
@@ -92,7 +93,7 @@ public class MainActivity extends Activity
         apkContinueInstallBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v) {
-                    installApk(mContext, apkUri, projectPackageName);
+                    installApk(mContext, apkUri);
                 }
             });
         return true;
@@ -160,7 +161,7 @@ public class MainActivity extends Activity
         return null;
     }
     
-    static void installApk(Context mContext, Uri apkUri, String packageName){
+    static void installApk(Context mContext, Uri apkUri){
         if (apkUri != null) {
             Intent installIntent = new Intent(Intent.ACTION_VIEW);
             installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
