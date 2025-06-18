@@ -14,6 +14,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import imo.after_build.MainActivity;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -22,6 +24,8 @@ import java.io.OutputStream;
 public class MainActivity extends Activity 
 {
     String projectPackageName = "nope";
+    Button apkContinueInstallBtn;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +40,7 @@ public class MainActivity extends Activity
         final EditText projectPathEdit = findViewById(R.id.project_path_edit);
         final Button projectPathBtn = findViewById(R.id.project_path_btn);
         final TextView outputText = findViewById(R.id.output_txt);
+        apkContinueInstallBtn = findViewById(R.id.apk_install_btn);
 
         receiveApk(this);
 
@@ -69,20 +74,27 @@ public class MainActivity extends Activity
                     outputText.setText(output);
                 }
             });
-
+            
         outputText.setText(projectPackageName);
     }
 
-    public boolean receiveApk(Context mContext) {
+    public boolean receiveApk(final Context mContext) {
         Intent intent = getIntent();
         String action = intent.getAction();
         String type = intent.getType();
 
         if(! Intent.ACTION_VIEW.equals(action)) return false;
         if(! "application/vnd.android.package-archive".equals(type)) return false;
-        Uri apkUri = intent.getData();
+        final Uri apkUri = intent.getData();
         if(apkUri == null) return false;
         projectPackageName = getApkPackageName(mContext, apkUri);
+        
+        apkContinueInstallBtn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    installApk(mContext, apkUri, projectPackageName);
+                }
+            });
         return true;
     }
 
@@ -146,6 +158,21 @@ public class MainActivity extends Activity
             if(subfolder.exists()) return folder;
         }
         return null;
+    }
+    
+    static void installApk(Context mContext, Uri apkUri, String packageName){
+        if (apkUri != null) {
+            Intent installIntent = new Intent(Intent.ACTION_VIEW);
+            installIntent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            try {
+                mContext.startActivity(installIntent);
+            } catch (Exception e) {
+                Toast.makeText(mContext, "Failed to open package installer.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(mContext, "APK file URI is not available.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     boolean hasStoragePermission() {
