@@ -1,11 +1,14 @@
 package imo.after_build;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ApkReceiverActivity extends Activity
 {
@@ -36,5 +39,13 @@ public class ApkReceiverActivity extends Activity
         addApkCheckbox.setText("Add Apk To Project");
         continueInstallBtn.setText("Continue Install Apk");
         setContentView(rootLayout);
+        
+        
+        boolean isRecieveApk = Intent.ACTION_VIEW.equals(getIntent().getAction());
+        if(!isRecieveApk){
+            Toast.makeText(this, "You opened "+getClass()+" in the wrong way", Toast.LENGTH_LONG).show();
+            finish();
+        }
+        Uri apkUri = getIntent().getData();
     }
 }
