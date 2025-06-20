@@ -22,13 +22,19 @@ public class ApkReceiverActivity extends Activity
 
         LinearLayout rootLayout = new LinearLayout(this);
         TextView projectFileListText = new TextView(this);
-        Button continueInstallBtn = new Button(this);
+        LinearLayout apkActionLayout = new LinearLayout(this);
         CheckBox addApkCheckbox = new CheckBox(this);
+        Button continueInstallBtn = new Button(this);
         rootLayout.addView(projectFileListText);
-        rootLayout.addView(continueInstallBtn);
-        rootLayout.addView(addApkCheckbox);
+        apkActionLayout.addView(addApkCheckbox);
+        apkActionLayout.addView(continueInstallBtn);
+        rootLayout.addView(apkActionLayout);
 
         rootLayout.setOrientation(LinearLayout.VERTICAL);
+        setTitle("sample.apk.package.name");
+        projectFileListText.setText("app\n.gitignore\nbuild.gradle\nREADME.md");
+        addApkCheckbox.setText("Add Apk To Project");
+        continueInstallBtn.setText("Continue Install Apk");
         setContentView(rootLayout);
     }
 }
