@@ -69,18 +69,11 @@ public class ApkReceiverActivity extends Activity
         
         final Uri apkUri = getIntent().getData();
 
-        continueInstallBtn.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    installApk(apkUri);
-                }
-            });
-            
         final String packageName = getApkPackageName(this, apkUri);
         setTitle(packageName);
         
         String projectPath = getProjectPathByPackageName(packageName);
-        File projectFile = new File(projectPath);
+        final File projectFile = new File(projectPath);
         String projectFileList = "";
         
         if(projectFile.exists())
@@ -88,6 +81,19 @@ public class ApkReceiverActivity extends Activity
             projectFileList += "<br>"+File.getName();
         
         projectFileListText.setText(Html.fromHtml("<b>"+projectPath+"</b><br>"+projectFileList));
+        
+        continueInstallBtn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    
+                    installApk(apkUri);
+
+                    if(! addApkCheckBox.isChecked()) return;
+                    
+                    addApkToProject(apkUri, projectFile);
+                    Toast.makeText(v.getContext(), "apk added to project folder", Toast.LENGTH_LONG).show();
+                }
+            });
     }
     
     
@@ -105,6 +111,28 @@ public class ApkReceiverActivity extends Activity
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Recommended for starting a new task
         startActivity(intent);
+    }
+    
+    public void addApkToProject(Uri apkUri, File projectFile){
+        if(! projectFile.exists()) return;
+
+        String fileName = "compiled.apk";
+        File destinationFile = new File(projectFile, fileName);
+
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(apkUri);
+            OutputStream outputStream = new FileOutputStream(destinationFile);
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            inputStream.close();
+            outputStream.close();
+
+        } catch (Exception e) {}
     }
     
     public String getApkPackageName(Context context, Uri apkUri) {
