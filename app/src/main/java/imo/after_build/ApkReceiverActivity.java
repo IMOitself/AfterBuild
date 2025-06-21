@@ -88,11 +88,17 @@ public class ApkReceiverActivity extends Activity
             });
             
         final String packageName = getApkPackageName(this, apkUri);
-
         setTitle(packageName);
-        String projectFolder = getProjectFolderByPackageName(packageName);
-        String projectFiles = "";
-        projectFileListText.setText(Html.fromHtml("<b>"+projectFolder+"</b><br>"+projectFiles));
+        
+        String projectPath = getProjectPathByPackageName(packageName);
+        File projectFile = new File(projectPath);
+        String projectFileList = "";
+        
+        if(projectFile.exists())
+        for(File File : projectFile.listFiles())
+            projectFileList += "<br>"+File.getName();
+        
+        projectFileListText.setText(Html.fromHtml("<b>"+projectPath+"</b><br>"+projectFileList));
     }
     
     
@@ -124,7 +130,7 @@ public class ApkReceiverActivity extends Activity
         return null;
     }
     
-    String getProjectFolderByPackageName(String packageName){
+    String getProjectPathByPackageName(String packageName){
         final File AppProjectsFolder = new File("/storage/emulated/0/AppProjects");
         if(! AppProjectsFolder.exists()) return AppProjectsFolder+" does not exist";
         
@@ -152,7 +158,7 @@ public class ApkReceiverActivity extends Activity
                     }
                 }
             } catch (IOException e) {
-                System.err.println("Error reading the manifest file: " + e.getMessage());
+                return "Error reading the manifest file: " + e.getMessage();
             }
         }
         return packageName+"'s related project folder not found";
