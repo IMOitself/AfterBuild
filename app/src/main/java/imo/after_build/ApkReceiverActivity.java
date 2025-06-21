@@ -44,7 +44,10 @@ public class ApkReceiverActivity extends Activity
         continueInstallBtn.setText("Continue Install Apk");
         setContentView(rootLayout);
         
-        
+        onReceiveApk(continueInstallBtn);
+    }
+    
+    void onReceiveApk(Button continueInstallBtn){
         boolean isRecieveApk = Intent.ACTION_VIEW.equals(getIntent().getAction());
         if(!isRecieveApk){
             Toast.makeText(this, "You opened "+getClass()+" in the wrong way", Toast.LENGTH_LONG).show();
@@ -52,23 +55,23 @@ public class ApkReceiverActivity extends Activity
         }
         
         final Uri apkUri = getIntent().getData();
-        
+
         continueInstallBtn.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (!getPackageManager().canRequestPackageInstalls()) {
-                        startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName())));
-                        return;
+                @Override
+                public void onClick(View v){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        if (!getPackageManager().canRequestPackageInstalls()) {
+                            startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName())));
+                            return;
+                        }
                     }
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Recommended for starting a new task
+                    startActivity(intent);
                 }
-                
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Recommended for starting a new task
-                startActivity(intent);
-            }
-        });
+            });
     }
 }
