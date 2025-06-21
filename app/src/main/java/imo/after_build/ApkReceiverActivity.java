@@ -88,10 +88,12 @@ public class ApkReceiverActivity extends Activity
                     
                     installApk(apkUri);
 
-                    if(! addApkCheckBox.isChecked()) return;
+                    if(addApkCheckBox.isChecked()) {
+                        addApkToProject(apkUri, projectFile);
+                        Toast.makeText(v.getContext(), "apk added to project folder", Toast.LENGTH_LONG).show();
+                    }
                     
-                    addApkToProject(apkUri, projectFile);
-                    Toast.makeText(v.getContext(), "apk added to project folder", Toast.LENGTH_LONG).show();
+                    //TODO: prompt to open After Git (optional)
                 }
             });
     }
