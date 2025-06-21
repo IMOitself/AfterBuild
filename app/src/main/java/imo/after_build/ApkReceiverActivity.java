@@ -50,9 +50,10 @@ public class ApkReceiverActivity extends Activity
         rootLayout.addView(apkActionLayout);
 
         rootLayout.setOrientation(LinearLayout.VERTICAL);
-        setTitle("sample.apk.package.name");
-        projectFileListText.setText("app\n.gitignore\nbuild.gradle\nREADME.md");
+        setTitle("Not An AIDE Project");
+        projectFileListText.setText("");
         addApkCheckbox.setChecked(true);
+        addApkCheckbox.setEnabled(false); // initial
         addApkCheckbox.setText("Add Apk To Project");
         continueInstallBtn.setText("Continue Install Apk");
         setContentView(rootLayout);
@@ -70,17 +71,21 @@ public class ApkReceiverActivity extends Activity
         final Uri apkUri = getIntent().getData();
 
         final String packageName = getApkPackageName(this, apkUri);
-        setTitle(packageName);
         
         String projectPath = getProjectPathByPackageName(packageName);
         final File projectFile = new File(projectPath);
         String projectFileList = "";
         
         if(projectFile.exists())
-        for(File File : projectFile.listFiles())
-            projectFileList += "<br>"+File.getName();
+            for(File File : projectFile.listFiles())
+                projectFileList += "<br>"+File.getName();
         
         projectFileListText.setText(Html.fromHtml("<b>"+projectPath+"</b><br>"+projectFileList));
+        
+        if(projectFile.exists()){
+            setTitle(packageName);
+            addApkCheckBox.setEnabled(true);
+        }
         
         continueInstallBtn.setOnClickListener(new View.OnClickListener(){
                 @Override

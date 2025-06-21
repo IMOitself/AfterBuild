@@ -11,7 +11,7 @@ will implement [AfterRun](https://github.com/IMOitself/AfterRun) and
 > [!WARNING]
 > This project is at its early stages and is prone to bugs
 
-[![Download](https://img.shields.io/badge/Download%20Apk-blue?style=for-the-badge)](https://github.com/IMOitself/AfterBuild/blob/master/imo-after_build.apk)
+[![Download](https://img.shields.io/badge/compiled.apk-blue?style=for-the-badge)](https://github.com/IMOitself/AfterBuild/blob/master/compiled.apk)
 
 <br>
 
