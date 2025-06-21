@@ -57,10 +57,10 @@ public class ApkReceiverActivity extends Activity
         continueInstallBtn.setText("Continue Install Apk");
         setContentView(rootLayout);
         
-        onReceiveApk(continueInstallBtn, projectFileListText);
+        onReceiveApk(continueInstallBtn, projectFileListText, addApkCheckbox);
     }
     
-    void onReceiveApk(Button continueInstallBtn, TextView projectFileListText){
+    void onReceiveApk(Button continueInstallBtn, TextView projectFileListText, final CheckBox addApkCheckBox){
         boolean isRecieveApk = Intent.ACTION_VIEW.equals(getIntent().getAction());
         if(!isRecieveApk){
             Toast.makeText(this, "You opened "+getClass()+" in the wrong way", Toast.LENGTH_LONG).show();
@@ -72,18 +72,7 @@ public class ApkReceiverActivity extends Activity
         continueInstallBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        if (!getPackageManager().canRequestPackageInstalls()) {
-                            startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName())));
-                            return;
-                        }
-                    }
-
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Recommended for starting a new task
-                    startActivity(intent);
+                    installApk(apkUri);
                 }
             });
             
@@ -102,6 +91,21 @@ public class ApkReceiverActivity extends Activity
     }
     
     
+    
+    public void installApk(Uri apkUri){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!getPackageManager().canRequestPackageInstalls()) {
+                startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getPackageName())));
+                return;
+            }
+        }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Recommended for starting a new task
+        startActivity(intent);
+    }
     
     public String getApkPackageName(Context context, Uri apkUri) {
         PackageManager pm = context.getPackageManager();
