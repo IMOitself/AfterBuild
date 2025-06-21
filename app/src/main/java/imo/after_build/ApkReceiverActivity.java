@@ -9,17 +9,22 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ApkReceiverActivity extends Activity
 {
@@ -52,10 +57,10 @@ public class ApkReceiverActivity extends Activity
         continueInstallBtn.setText("Continue Install Apk");
         setContentView(rootLayout);
         
-        onReceiveApk(continueInstallBtn);
+        onReceiveApk(continueInstallBtn, projectFileListText);
     }
     
-    void onReceiveApk(Button continueInstallBtn){
+    void onReceiveApk(Button continueInstallBtn, TextView projectFileListText){
         boolean isRecieveApk = Intent.ACTION_VIEW.equals(getIntent().getAction());
         if(!isRecieveApk){
             Toast.makeText(this, "You opened "+getClass()+" in the wrong way", Toast.LENGTH_LONG).show();
@@ -63,8 +68,6 @@ public class ApkReceiverActivity extends Activity
         }
         
         final Uri apkUri = getIntent().getData();
-        
-        setTitle(getApkPackageName(this, apkUri));
 
         continueInstallBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -83,7 +86,16 @@ public class ApkReceiverActivity extends Activity
                     startActivity(intent);
                 }
             });
+            
+        final String packageName = getApkPackageName(this, apkUri);
+
+        setTitle(packageName);
+        String projectFolder = getProjectFolderByPackageName(packageName);
+        String projectFiles = "";
+        projectFileListText.setText(Html.fromHtml("<b>"+projectFolder+"</b><br>"+projectFiles));
     }
+    
+    
     
     public String getApkPackageName(Context context, Uri apkUri) {
         PackageManager pm = context.getPackageManager();
@@ -110,5 +122,39 @@ public class ApkReceiverActivity extends Activity
                 tempFile.delete();
         }
         return null;
+    }
+    
+    String getProjectFolderByPackageName(String packageName){
+        final File AppProjectsFolder = new File("/storage/emulated/0/AppProjects");
+        if(! AppProjectsFolder.exists()) return AppProjectsFolder+" does not exist";
+        
+        for(File Folder : AppProjectsFolder.listFiles()){
+            if(! Folder.isDirectory()) continue;
+            
+            File manifestFile = new File(Folder, "app/src/main/AndroidManifest.xml");
+            boolean isAIDEProject = manifestFile.exists();
+            
+            if(! isAIDEProject) continue;
+            
+            Pattern pattern = Pattern.compile("package=\"([a-zA-Z0-9_.]+)\"");
+
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(manifestFile));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    Matcher matcher = pattern.matcher(line);
+                    if (matcher.find()) {
+                        String foundPackageName = matcher.group(1);
+                        if(packageName.equals(foundPackageName)){
+                            return Folder.getAbsolutePath();
+                        }
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading the manifest file: " + e.getMessage());
+            }
+        }
+        return packageName+"'s related project folder not found";
     }
 }
