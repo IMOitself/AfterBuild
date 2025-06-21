@@ -1,17 +1,25 @@
 package imo.after_build;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class ApkReceiverActivity extends Activity
 {
@@ -55,6 +63,8 @@ public class ApkReceiverActivity extends Activity
         }
         
         final Uri apkUri = getIntent().getData();
+        
+        setTitle(getApkPackageName(this, apkUri));
 
         continueInstallBtn.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -73,5 +83,32 @@ public class ApkReceiverActivity extends Activity
                     startActivity(intent);
                 }
             });
+    }
+    
+    public String getApkPackageName(Context context, Uri apkUri) {
+        PackageManager pm = context.getPackageManager();
+        File tempFile = null;
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(apkUri);
+            if (inputStream == null) return null;
+            
+            tempFile = new File(context.getCacheDir(), "temp_apk.apk");
+            try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) 
+                    outputStream.write(buffer, 0, length);
+            }
+            inputStream.close();
+
+            PackageInfo packageInfo = pm.getPackageArchiveInfo(tempFile.getAbsolutePath(), 0);
+            if (packageInfo != null) return packageInfo.packageName;
+            
+        } catch (Exception e) {} 
+        finally {
+            if (tempFile != null && tempFile.exists()) 
+                tempFile.delete();
+        }
+        return null;
     }
 }
