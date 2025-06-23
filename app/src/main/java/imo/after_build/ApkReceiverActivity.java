@@ -115,13 +115,14 @@ public class ApkReceiverActivity extends Activity
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         setContentView(rootLayout);
 
-        textview.setText("Continue installing the apk now:D");
+        textview.setText("Continue installing the apk in Package Installer:D");
         openButton.setText("Open");
         openButton.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
                     Intent intent = ApkReceiverActivity.this.getPackageManager().getLaunchIntentForPackage(packageName);
                     ApkReceiverActivity.this.startActivity(intent);
+                    finish();
                 }
             });
         exitButton.setText("Exit");
