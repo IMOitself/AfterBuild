@@ -98,22 +98,32 @@ public class ApkReceiverActivity extends Activity
                         Toast.makeText(v.getContext(), "apk added to project folder", Toast.LENGTH_LONG).show();
                     }
                     
-                    onAfterInstall();
+                    onAfterInstall(packageName);
                 }
             });
     }
     
-    void onAfterInstall(){
+    void onAfterInstall(final String packageName){
         LinearLayout rootLayout = new LinearLayout(this);
         TextView textview = new TextView(this);
+        Button openButton = new Button(this);
         Button exitButton = new Button(this);
         //TODO: option to go to AfterGit
         rootLayout.addView(textview);
+        rootLayout.addView(openButton);
         rootLayout.addView(exitButton);
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         setContentView(rootLayout);
 
         textview.setText("Continue installing the apk now:D");
+        openButton.setText("Open");
+        openButton.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    Intent intent = ApkReceiverActivity.this.getPackageManager().getLaunchIntentForPackage(packageName);
+                    ApkReceiverActivity.this.startActivity(intent);
+                }
+            });
         exitButton.setText("Exit");
         exitButton.setOnClickListener(new View.OnClickListener(){
                 @Override
