@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Html;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -114,8 +115,21 @@ public class ApkReceiverActivity extends Activity
         rootLayout.addView(exitButton);
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         setContentView(rootLayout);
-
-        textview.setText("Continue installing the apk in Package Installer:D");
+        
+        Button[] buttons = {openButton, exitButton};
+        for(Button button : buttons){
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
+            params.weight = 1.0f;
+            params.width = LinearLayout.LayoutParams.MATCH_PARENT;
+            button.setLayoutParams(params);
+        }
+        
+        ((LinearLayout.LayoutParams) 
+        textview.getLayoutParams()).weight = 2.0f;
+        ((LinearLayout.LayoutParams) 
+        textview.getLayoutParams()).width = LinearLayout.LayoutParams.MATCH_PARENT;
+        textview.setGravity(Gravity.CENTER);
+        textview.setText("Continue installing the apk in \nPackage Installer");
         openButton.setText("Open");
         openButton.setOnClickListener(new View.OnClickListener(){
                 @Override
