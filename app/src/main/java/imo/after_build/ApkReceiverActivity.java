@@ -47,8 +47,8 @@ public class ApkReceiverActivity extends Activity
         Button continueInstallBtn = new Button(this);
         rootLayout.addView(projectFileListText);
         apkActionLayout.addView(addApkCheckbox);
-        apkActionLayout.addView(continueInstallBtn);
         rootLayout.addView(apkActionLayout);
+        rootLayout.addView(continueInstallBtn);
 
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         setTitle("Not An AIDE Project");
@@ -57,6 +57,15 @@ public class ApkReceiverActivity extends Activity
         addApkCheckbox.setEnabled(false); // initial
         addApkCheckbox.setText("Add Apk To Project");
         continueInstallBtn.setText("Continue Install Apk");
+        
+        ((LinearLayout.LayoutParams) 
+            projectFileListText.getLayoutParams()).weight = 2.0f;
+        
+        ((LinearLayout.LayoutParams) 
+            continueInstallBtn.getLayoutParams()).weight = 2.0f;
+        ((LinearLayout.LayoutParams) 
+            continueInstallBtn.getLayoutParams()).width = LinearLayout.LayoutParams.MATCH_PARENT;
+            
         setContentView(rootLayout);
         
         onReceiveApk(continueInstallBtn, projectFileListText, addApkCheckbox);
