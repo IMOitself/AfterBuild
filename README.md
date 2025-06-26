@@ -1,12 +1,10 @@
 # AfterBuild
-app for managing AIDE projects
 
-will implement [AfterRun](https://github.com/IMOitself/AfterRun) and 
-[AfterGit](https://github.com/IMOitself/AfterGit) app soon
+will implement [AfterGit](https://github.com/IMOitself/AfterGit) app soon
 
-| 1 | 2 
-|:-------:|:-------:|
-| screenshot 1 | screenshot 2 |
+> [!TIP]
+> currently remaking this README.
+
 ## Download
 > [!WARNING]
 > This project is at its early stages and is prone to bugs
