@@ -1,12 +1,11 @@
 # AfterBuild
 app for managing AIDE projects
-
-will implement [AfterGit](https://github.com/IMOitself/AfterGit) app soon
-
 <br>
 
 > [!NOTE]
->  this version can only be build using AIDE.
+>  this version can only be build using AIDE. <br><br>
+> will implement [AfterGit](https://github.com/IMOitself/AfterGit)
+ 
 
 <br>
 
@@ -36,6 +35,4 @@ will implement [AfterGit](https://github.com/IMOitself/AfterGit) app soon
 ## Screenshots
 
 > [!TIP]
-> coming soon :D
-
-<img src="assets/change_me.jpg" width="200">
+> coming soon :D<img src="assets/change_me.jpg" width="200">
