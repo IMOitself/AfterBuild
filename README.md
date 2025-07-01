@@ -1,10 +1,10 @@
 # AfterBuild
-app for managing AIDE projects
+**app for managing AIDE projects**
+
 <br>
 
 > [!NOTE]
->  this version can only be build using AIDE. <br><br>
-> will implement [AfterGit](https://github.com/IMOitself/AfterGit)
+>  this version can only be build using AIDE.
  
 
 <br>
@@ -20,15 +20,14 @@ app for managing AIDE projects
 
 - [x] receive apk from AIDE
 - [x] add apk to project
-- [ ] do git stuffs
+- [ ] do git stuffs using [AfterGit-Official](https://github.com/IMOitself/AfterGit) 
 
 <br>
 
 ## How it works
 - AIDE opens the apk file of a project after building
-- the 'Open With' dialog will be open and AfterBuild will show on choices
-- AfterBuild will then locate the project folder. Allowing you to manage the project quickly
-- example usecase: including apk file on folder. running git commands.
+- AfterBuild will show on the 'Open With' dialog
+- On click, AfterBuild will then locate the project folder related to the apk.
 
 <br>
 
