@@ -38,4 +38,8 @@ will implement [AfterGit](https://github.com/IMOitself/AfterGit) app soon
 > [!TIP]
 > coming soon :D
 
-<img src="assets/change_me.jpg" width="200">
+<br>
+
+<img src="assets/ss1.jpg" width="200"><img src="assets/ss2.jpg" width="200">
+<img src="assets/ss3.jpg" width="200">
+<img src="assets/ss4.jpg" width="200">
