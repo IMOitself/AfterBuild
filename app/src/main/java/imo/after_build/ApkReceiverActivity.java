@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -53,6 +55,8 @@ public class ApkReceiverActivity extends Activity
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         setTitle("Not An AIDE Project");
         projectFileListText.setText("");
+        projectFileListText.setTypeface(Typeface.MONOSPACE);
+        projectFileListText.setMovementMethod(new ScrollingMovementMethod());
         addApkCheckbox.setChecked(true);
         addApkCheckbox.setEnabled(false); // initial
         addApkCheckbox.setText("Add Apk To Project");
@@ -61,8 +65,6 @@ public class ApkReceiverActivity extends Activity
         ((LinearLayout.LayoutParams) 
             projectFileListText.getLayoutParams()).weight = 2.0f;
         
-        ((LinearLayout.LayoutParams) 
-            continueInstallBtn.getLayoutParams()).weight = 2.0f;
         ((LinearLayout.LayoutParams) 
             continueInstallBtn.getLayoutParams()).width = LinearLayout.LayoutParams.MATCH_PARENT;
             
@@ -84,15 +86,18 @@ public class ApkReceiverActivity extends Activity
         
         String projectPath = getProjectPathByPackageName(packageName);
         final File projectFile = new File(projectPath);
-        String projectFileList = "";
-        
-        if(projectFile.exists())
-            for(File File : projectFile.listFiles())
-                projectFileList += "<br>"+File.getName();
-        
-        projectFileListText.setText(Html.fromHtml("<b>"+projectPath+"</b><br>"+projectFileList));
-        
-        if(projectFile.exists()){
+
+        StringBuilder displayText = new StringBuilder(projectPath);
+
+        if (projectFile.exists() && projectFile.listFiles() != null) {
+            for (File file : projectFile.listFiles()) {
+                displayText.append("\n").append(file.getName());
+            }
+        }
+
+        projectFileListText.setText(displayText.toString());
+
+        if (projectFile.exists()) {
             setTitle(packageName);
             addApkCheckBox.setEnabled(true);
         }
@@ -224,36 +229,56 @@ public class ApkReceiverActivity extends Activity
     }
     
     String getProjectPathByPackageName(String packageName){
-        final File AppProjectsFolder = new File("/storage/emulated/0/AppProjects");
-        if(! AppProjectsFolder.exists()) return AppProjectsFolder+" does not exist";
+        final File[] FoldersToLook = {
+            new File("/storage/emulated/0/AppProjects"), 
+            new File("/storage/emulated/0/AppProjects2")
+        };
+        boolean isFolderExist = false;
+        String log = "";
         
-        for(File Folder : AppProjectsFolder.listFiles()){
-            if(! Folder.isDirectory()) continue;
-            
-            File manifestFile = new File(Folder, "app/src/main/AndroidManifest.xml");
-            boolean isAIDEProject = manifestFile.exists();
-            
-            if(! isAIDEProject) continue;
-            
-            Pattern pattern = Pattern.compile("package=\"([a-zA-Z0-9_.]+)\"");
+        for(File AppProjectsFolder : FoldersToLook){
+            if(! AppProjectsFolder.exists()) continue;
+            isFolderExist = true;
 
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(manifestFile));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    Matcher matcher = pattern.matcher(line);
-                    if (matcher.find()) {
-                        String foundPackageName = matcher.group(1);
-                        if(packageName.equals(foundPackageName)){
-                            return Folder.getAbsolutePath();
+            for(File Folder : AppProjectsFolder.listFiles()){
+                if(! Folder.isDirectory()) continue;
+                log += "\nsearched inside "+Folder.getPath();
+
+                File manifestFile = new File(Folder, "app/src/main/AndroidManifest.xml");
+                boolean isAIDEProject = manifestFile.exists();
+
+                if(! isAIDEProject) continue;
+                log += "\nread manifestFile "+manifestFile;
+
+                Pattern pattern = Pattern.compile("package=\"([a-zA-Z0-9_.]+)\"");
+
+                try {
+                    BufferedReader reader = new BufferedReader(new FileReader(manifestFile));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        Matcher matcher = pattern.matcher(line);
+                        if (matcher.find()) {
+                            String foundPackageName = matcher.group(1);
+                            if(packageName.equals(foundPackageName)){
+                                return Folder.getAbsolutePath();
+                            }
+                            break;
                         }
-                        break;
                     }
+                } catch (IOException e) {
+                    return "Error reading the manifest file: " + e.getMessage();
                 }
-            } catch (IOException e) {
-                return "Error reading the manifest file: " + e.getMessage();
             }
         }
-        return packageName+"'s related project folder not found";
+        
+        if(! isFolderExist) return "AppProjects or AppProjects2 does not exist";
+        
+        return packageName+"'s related project folder not found\n"+log;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finishAffinity();
     }
 }
