@@ -57,6 +57,7 @@ public class ApkReceiverActivity extends Activity
         projectFileListText.setText("");
         projectFileListText.setTypeface(Typeface.MONOSPACE);
         projectFileListText.setMovementMethod(new ScrollingMovementMethod());
+		projectFileListText.setMaxLines(25);
         addApkCheckbox.setChecked(true);
         addApkCheckbox.setEnabled(false); // initial
         addApkCheckbox.setText("Add Apk To Project");
@@ -67,7 +68,10 @@ public class ApkReceiverActivity extends Activity
         
         ((LinearLayout.LayoutParams) 
             continueInstallBtn.getLayoutParams()).width = LinearLayout.LayoutParams.MATCH_PARENT;
-            
+			
+		((LinearLayout.LayoutParams) 
+            continueInstallBtn.getLayoutParams()).weight = 1.0f;
+		
         setContentView(rootLayout);
         
         onReceiveApk(continueInstallBtn, projectFileListText, addApkCheckbox);
