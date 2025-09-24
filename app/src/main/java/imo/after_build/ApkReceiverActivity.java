@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.View;
@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -179,7 +180,24 @@ public class ApkReceiverActivity extends Activity
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Recommended for starting a new task
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		
+		String defaultInstallerPackageName = null;
+		PackageManager pm = getPackageManager();
+		List<ResolveInfo> installers = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+
+		String googleInstaller = "com.google.android.packageinstaller";
+		String legacyInstaller = "com.android.packageinstaller";// OEM devices (Samsung, etc.)
+
+		for (ResolveInfo resolveInfo : installers) {
+			String packageName = resolveInfo.activityInfo.packageName;
+			if (googleInstaller.equals(packageName) || 
+				legacyInstaller.equals(packageName)) 
+				defaultInstallerPackageName = packageName;
+		}
+		if (defaultInstallerPackageName != null) 
+			intent.setPackage(defaultInstallerPackageName);
+		
         startActivity(intent);
     }
     
