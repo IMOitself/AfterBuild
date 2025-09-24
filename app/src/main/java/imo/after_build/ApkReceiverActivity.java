@@ -10,6 +10,8 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
@@ -26,13 +28,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ApkReceiverActivity extends Activity
 {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,20 +130,29 @@ public class ApkReceiverActivity extends Activity
         TextView textview = new TextView(this);
         Button openButton = new Button(this);
         Button exitButton = new Button(this);
-        //TODO: option to go to AfterGit
+		//TODO: option to go to AfterGit
         rootLayout.addView(textview);
         rootLayout.addView(openButton);
         rootLayout.addView(exitButton);
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         setContentView(rootLayout);
-        
-        Button[] buttons = {openButton, exitButton};
+		
+		final Button[] buttons = {openButton, exitButton};
         for(Button button : buttons){
+			button.setEnabled(false);
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
             params.weight = 1.0f;
             params.width = LinearLayout.LayoutParams.MATCH_PARENT;
             button.setLayoutParams(params);
         }
+		
+		new Handler(Looper.getMainLooper()).postDelayed(new Runnable(){
+				@Override
+				public void run() {
+					for(Button button : buttons)
+						button.setEnabled(true);
+				}
+			}, 5000);
         
         ((LinearLayout.LayoutParams) 
         textview.getLayoutParams()).weight = 2.0f;
